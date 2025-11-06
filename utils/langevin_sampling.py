@@ -1,0 +1,37 @@
+import torch
+import numpy as np
+import matplotlib.pyplot as plt
+from tqdm import tqdm
+
+nb_points = 10
+model_path = "./score_mlp.pth"
+
+device = "cuda" if torch.cuda.is_available() else "cpu"
+model = torch.load(model_path).to(device=device)
+
+
+def langevin_sampling(model, T=1000, epsilon = 0.1, x_init = None, device = "cpu"):
+
+    if x_init is None:
+        x = torch.randn(1,2).to(device) * 3
+    else:
+        x = x_init.clone().to(device)
+
+    x.requires_grad_(False)
+    for t in range(T):
+        s = model(x)
+        z = torch.randn_like(x)
+        x = x + 0.5 * epsilon * s + epsilon**0.5 * z
+
+    return x.detach().cpu().numpy()
+
+sampled_points = []
+for i in tqdm(range(nb_points)):
+    sampled_points.append(langevin_sampling(model, device=device)[0])
+
+print(sampled_points)
+sampled_points = np.asarray(sampled_points)
+plt.scatter(sampled_points[:,0],sampled_points[:,1])
+plt.show()
+
+
