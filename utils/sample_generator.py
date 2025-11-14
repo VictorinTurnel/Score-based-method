@@ -12,3 +12,11 @@ def sample_generator(batch_size):
 
     return alpha * x1 + (1 - alpha) * x2
 
+
+def sample_circle(batch_size, radius=5.0, noise_std=1):
+    theta = 2 * torch.pi * torch.rand(batch_size)   # angle uniforme
+    x = radius * torch.cos(theta) + noise_std * torch.randn(batch_size)
+    y = radius * torch.sin(theta) + noise_std * torch.randn(batch_size)
+    return torch.stack([x, y], dim=1)
+
+

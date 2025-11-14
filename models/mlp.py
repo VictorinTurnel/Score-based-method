@@ -16,4 +16,26 @@ class ScoreMLP(nn.Module):
         x = F.softplus(self.fc2(x))
         x = self.fc3(x)
         return x
+    
+class ScoreMLP_sigma(nn.Module):
+
+    def __init__(self, hidden_dim = 128):
+        super().__init__()
+        self.fc1 = nn.Linear(2, hidden_dim)
+        self.fc2 = nn.Linear(hidden_dim, hidden_dim)
+        self.fc3 = nn.Linear(hidden_dim, 2)
+
+        self.sigma_embed = nn.Sequential(
+            nn.Linear(1,hidden_dim),
+            nn.Softplus(),
+            nn.Linear(hidden_dim, hidden_dim)
+        )
+
+    def forward(self, x, sigma):
+        s_emb = self.sigma_embed(sigma.unsqueeze(-1))
+
+        x = F.softplus(self.fc1(x) + s_emb)
+        x = F.softplus(self.fc2(x) + s_emb)
+        x = self.fc3(x)
+        return x
 

@@ -1,19 +1,22 @@
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
+from models.mlp import ScoreMLP
 from tqdm import tqdm
 
-nb_points = 10
-model_path = "./score_mlp.pth"
+nb_points = 100
+model_path = "./trained_models/score_mlp_spirale.pth"
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
-model = torch.load(model_path).to(device=device)
 
+model = ScoreMLP()
+model.load_state_dict(torch.load(model_path, map_location=device))
+model.to(device)
 
-def langevin_sampling(model, T=1000, epsilon = 0.1, x_init = None, device = "cpu"):
+def langevin_sampling(model, T=1000, epsilon = 0.5, x_init = None, device = "cpu"):
 
     if x_init is None:
-        x = torch.randn(1,2).to(device) * 3
+        x = torch.randn(1,2).to(device) * 1
     else:
         x = x_init.clone().to(device)
 
