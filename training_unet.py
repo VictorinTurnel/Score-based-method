@@ -1,14 +1,15 @@
 import torch 
 import torchvision
 import torchvision.transforms as transforms
-
-from losses.sliced_score_loss_sigma import annealed_sliced_loss
+from torch.utils.tensorboard import SummaryWriter
+from losses.sliced_score_loss import sliced_score_matching_loss, annealed_sliced_loss
 from models.unet import ScoreUNet
 from tqdm import tqdm
 
-training_iteration = 1000
-batch_size = 32
-model_path = "./score_mlp_annealed.pth"
+training_iteration = 100
+batch_size = 128
+model_path = "./score_unet.pth"
+out_name = "ScoreUNet_MNIST"
 
 transform = transforms.Compose(
     [transforms.ToTensor(),
@@ -38,8 +39,11 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 model = ScoreUNet().to(device)
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
-sigma_values = torch.tensor([50.0, 25.0, 10.0, 5.0, 1.0,0.5, 0.1]).to(device)
+sigma_values = torch.exp(torch.linspace(torch.log(torch.tensor(10.0)),
+                                        torch.log(torch.tensor(1.0)),
+                                        10)).to(device)
 
+writer = SummaryWriter(log_dir=f"./runs/{out_name}")
 for epoch in tqdm(range(training_iteration)):
     for x, _ in trainloader:
         x = x.to(device)
@@ -55,6 +59,16 @@ for epoch in tqdm(range(training_iteration)):
         loss.backward()
         optimizer.step()
 
-    if epoch%50 == 0:
+  
+
+    writer.add_scalar("Loss/train", loss.item(), epoch)
+    if epoch%5 == 0:
         print(f"Epoch = {epoch} | Loss = {loss}")
+        torch.save(model.state_dict(), f"./trained_models/{out_name}.pth")
+
+writer.close()
+torch.save(model.state_dict(), f"./trained_models/{out_name}.pth")
+        
+
+
 

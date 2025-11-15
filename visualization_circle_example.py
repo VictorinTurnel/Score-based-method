@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from models.mlp import ScoreMLP
 
 
-model_path = "./trained_models/score_mlp_spirale.pth"
+model_path = "./trained_models/ScoreMLP_circle.pth"
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model = ScoreMLP()

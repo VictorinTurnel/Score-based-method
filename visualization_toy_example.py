@@ -1,14 +1,17 @@
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
+from models.mlp import ScoreMLP, ScoreMLP_sigma
 
-model_path = "./train_models/score_mlp.pth"
+model_path = "./trained_models/ScoreMLP.pth"
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
-model = torch.load(model_path).to(device=device)
+model = ScoreMLP()
+model.load_state_dict(torch.load(model_path, map_location=device))
+model.to(device)
 
-xs = np.linspace(-20, 20, 100)
-ys = np.linspace(-20, 20, 100)
+xs = np.linspace(-10, 10, 100)
+ys = np.linspace(-10, 10, 100)
 XX, YY = np.meshgrid(xs, ys)
 grid = np.stack([XX.ravel(), YY.ravel()], axis=1)  
 grid_torch = torch.from_numpy(grid).float().to(device)
