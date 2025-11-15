@@ -5,7 +5,7 @@ from models.mlp import ScoreMLP
 from tqdm import tqdm
 
 nb_points = 100
-model_path = "./trained_models/score_mlp_spirale.pth"
+model_path = "./trained_models/ScoreMLP.pth" #"./trained_models/ScoreMLP.pth"
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -32,7 +32,6 @@ sampled_points = []
 for i in tqdm(range(nb_points)):
     sampled_points.append(langevin_sampling(model, device=device)[0])
 
-print(sampled_points)
 sampled_points = np.asarray(sampled_points)
 plt.scatter(sampled_points[:,0],sampled_points[:,1])
 plt.show()
